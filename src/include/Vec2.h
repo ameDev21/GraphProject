@@ -30,4 +30,5 @@ public:
   void operator=(const sf::Vector2i vec); // assing with SFMLs vector
 
   float dist(const Vec2 &rhs) const;
+  static int dist(const sf::Vector2f &lhs, const sf::Vector2f &rhs);
 };
