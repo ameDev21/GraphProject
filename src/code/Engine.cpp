@@ -105,6 +105,8 @@ void Engine::input() {
                   sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                   key.shape)) {
             if (edge_creation_pending) {
+              if (!(key.ID != pending_node->ID))
+                continue;
               createNewEdge(key);
               edge_creation_pending = false;
             } else {
