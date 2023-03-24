@@ -15,7 +15,7 @@ void Engine::createWindow() {
   const int height = 864;
   sf::VideoMode video(width, height);
   const std::string title = "GRAPH TOOL";
-  window.create(video, title, sf::Style::Default);
+  window.create(video, title, sf::Style::None);
   std::cout << "[INFO]: Window Created" << std::endl;
 }
 
@@ -201,6 +201,14 @@ void Engine::drawEdgesFrom(Node key, std::vector<Node> values) {
   sf::Text label;
   label.setFont(font);
   sf::Vertex line[2];
+  sf::Vector2f size;
+  // create an empty shape
+  sf::CircleShape arrow;
+  // resize it to 3 points
+  arrow.setPointCount(3);
+  const int radius_arrow = 10;
+  arrow.setRadius(radius_arrow);
+  arrow.setOrigin(radius_arrow, radius_arrow);
   for (auto &e : values) {
     auto node = graph.getMatrix().extract(e);
     if (!node)
@@ -211,9 +219,25 @@ void Engine::drawEdgesFrom(Node key, std::vector<Node> values) {
     line[1].position = node.key().shape.getPosition();
     label.setPosition((keyPosition.x + node.key().shape.getPosition().x) / 2,
                       (keyPosition.y + node.key().shape.getPosition().y) / 2);
+    const float theta = std::atan2(line[1].position.y - line[0].position.y,
+                                   line[1].position.x - line[0].position.x);
     label.setString(std::to_string(cost));
+    arrow.setPosition(
+        line[1].position.x -
+            (node.key().shape.getRadius() + radius_arrow) * cos(theta),
+        line[1].position.y -
+            (node.key().shape.getRadius() + radius_arrow) * sin(theta));
+
+    line[0].position.x =
+        keyPosition.x + (node.key().shape.getRadius() * cos(theta));
+    line[0].position.y =
+        keyPosition.y + (node.key().shape.getRadius() * sin(theta));
     graph.getMatrix().insert(std::move(node));
+    arrow.setRotation(-30 + (180 / M_PI) * theta);
+
+    line[1].position = arrow.getPosition();
     window.draw(line, 2, sf::Lines);
+    window.draw(arrow);
     window.draw(label);
   }
 }
@@ -237,9 +261,9 @@ void Engine::draw() {
   window.draw(nodes_creation_area.shape);
   window.draw(nodes_creation_area.label);
   // draw all nodes
-  for (auto &[key, value] : graph.getMatrix()) {
+  for (auto &[key, value] : graph.getMatrix())
     drawEdgesFrom(key, value);
-  }
+
   for (auto &[key, val] : graph.getMatrix()) {
     window.draw(key.shape);
     window.draw(key.label);
