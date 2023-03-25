@@ -13,11 +13,13 @@ void Graph::addNode(Node node_to_add) {
 }
 
 void Graph::deleteNode(Node node_to_delete) {
-  for (auto &e : graph_matrix.at(node_to_delete))
-    graph_matrix.at(e).erase(
-        std::remove_if(graph_matrix.at(e).begin(), graph_matrix.at(e).end(),
+  // checking through all the nodes in order to see
+  // if someone is adj with the one to delete
+  for (auto &[key, value] : getMatrix())
+    graph_matrix.at(key).erase(
+        std::remove_if(graph_matrix.at(key).begin(), graph_matrix.at(key).end(),
                        [&](Node node) { return node == node_to_delete; }),
-        graph_matrix.at(e).end());
+        graph_matrix.at(key).end());
 
   graph_matrix.erase(node_to_delete);
 }

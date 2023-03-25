@@ -182,7 +182,7 @@ void Engine::createNewNode() {
 void Engine::createNewEdge(const Node ending_node) {
   std::cout << "[INFO]: Ended Edge to Node " << ending_node.ID << std::endl;
   graph.getMatrix().at(*pending_node).emplace_back(ending_node);
-  graph.getMatrix().at(ending_node).emplace_back(*pending_node);
+  // graph.getMatrix().at(ending_node).emplace_back(*pending_node);
 }
 
 void Engine::createNodesCreationArea() {
