@@ -2,6 +2,7 @@
 #include "Graph.h"
 #include "Vec2.h"
 #include <SFML/Graphics.hpp>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -37,7 +38,7 @@ private:
   void createNewNode();
   void createNewEdge(const Node);
 
-  void drawEdgesFrom(Node, std::vector<Node>);
+  void drawEdgesFrom(Node, std::map<Node, int>);
 
 public:
   void start();

@@ -4,7 +4,9 @@
 #include <map>
 #include <vector>
 
-typedef std::map<Node, std::vector<Node>> graphMatrix;
+// the graph is classfied as a map to adjacents nodes
+// within the cost of the edges out of that node
+typedef std::map<Node, std::map<Node, int>> graphMatrix;
 class Graph {
 private:
   int m_generated_nodes = 0;

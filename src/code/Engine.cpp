@@ -1,5 +1,6 @@
 #include "../include/Engine.h"
 #include "../include/Node.h"
+#include <SFML/Window/WindowStyle.hpp>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -15,7 +16,7 @@ void Engine::createWindow() {
   const int height = 864;
   sf::VideoMode video(width, height);
   const std::string title = "GRAPH TOOL";
-  window.create(video, title, sf::Style::None);
+  window.create(video, title, sf::Style::Fullscreen);
   std::cout << "[INFO]: Window Created" << std::endl;
 }
 
@@ -181,8 +182,7 @@ void Engine::createNewNode() {
 
 void Engine::createNewEdge(const Node ending_node) {
   std::cout << "[INFO]: Ended Edge to Node " << ending_node.ID << std::endl;
-  graph.getMatrix().at(*pending_node).emplace_back(ending_node);
-  // graph.getMatrix().at(ending_node).emplace_back(*pending_node);
+  graph.getMatrix().at(*pending_node).emplace(ending_node, 12);
 }
 
 void Engine::createNodesCreationArea() {
@@ -196,8 +196,8 @@ void Engine::createNodesCreationArea() {
   std::cout << "[INFO]: Nodes Creation Area Created" << std::endl;
 }
 
-void Engine::drawEdgesFrom(Node key, std::vector<Node> values) {
-  const sf::Vector2f keyPosition = key.shape.getPosition();
+void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents) {
+  const sf::Vector2f keyPosition = started.shape.getPosition();
   sf::Text label;
   label.setFont(font);
   sf::Vertex line[2];
@@ -209,12 +209,16 @@ void Engine::drawEdgesFrom(Node key, std::vector<Node> values) {
   const int radius_arrow = 10;
   arrow.setRadius(radius_arrow);
   arrow.setOrigin(radius_arrow, radius_arrow);
-  for (auto &e : values) {
-    auto node = graph.getMatrix().extract(e);
+  for (auto &[key, value] : adjacents) {
+    auto node = graph.getMatrix().extract(key);
     if (!node)
       continue;
-
-    const int cost = Vec2::dist(keyPosition, node.key().shape.getPosition());
+    graph.getMatrix().at(started).at(key) =
+        Vec2::dist(keyPosition, node.key().shape.getPosition());
+    // std::cout << "this is the cost of the edges from " << started.ID
+    // << " to: " << key.ID
+    // << " is: " << graph.getMatrix().at(started).at(key) << std::endl;
+    const int cost = value;
     line[0].position = keyPosition;
     line[1].position = node.key().shape.getPosition();
     label.setPosition((keyPosition.x + node.key().shape.getPosition().x) / 2,
