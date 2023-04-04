@@ -1,6 +1,6 @@
 #pragma once
-#include "Graph.h"
-#include "Vec2.h"
+#include "Graph.hpp"
+#include "Vec2.hpp"
 #include <SFML/Graphics.hpp>
 #include <map>
 #include <memory>

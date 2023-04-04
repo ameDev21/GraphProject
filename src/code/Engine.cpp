@@ -1,5 +1,5 @@
-#include "../include/Engine.h"
-#include "../include/Node.h"
+#include "../include/Engine.hpp"
+#include "../include/Node.hpp"
 #include <SFML/Window/WindowStyle.hpp>
 #include <algorithm>
 #include <cmath>

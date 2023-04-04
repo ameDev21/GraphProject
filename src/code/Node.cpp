@@ -1,4 +1,5 @@
-#include "../include/Node.h"
+#include "../include/Node.hpp"
+
 #include <iostream>
 
 Node::Node() { init(RADIUS); }
