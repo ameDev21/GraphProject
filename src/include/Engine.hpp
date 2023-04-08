@@ -8,7 +8,7 @@
 
 class Engine {
 private:
-  Graph graph;
+  // Graph graph;
   Vec2 prev_mousepos;
   bool running = true;
   bool edge_creation_pending = false;

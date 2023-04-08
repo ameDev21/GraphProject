@@ -9,13 +9,13 @@
 typedef std::map<Node, std::map<Node, int>> graphMatrix;
 class Graph {
 private:
-  int m_generated_nodes = 0;
-  graphMatrix graph_matrix;
+  static int m_generated_nodes;
+  static graphMatrix graph_matrix;
 
 public:
-  void addNode(Node);
+  static void addNode(Node);
 
-  void deleteNode(Node);
+  static void deleteNode(Node);
 
-  graphMatrix &getMatrix();
+  static graphMatrix &getMatrix();
 };

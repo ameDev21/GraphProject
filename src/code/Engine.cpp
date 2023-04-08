@@ -1,5 +1,7 @@
 #include "../include/Engine.hpp"
+#include "../include/Algorithms/Dijkstra.hpp"
 #include "../include/Node.hpp"
+#include "Graph.hpp"
 #include <SFML/Window/WindowStyle.hpp>
 #include <algorithm>
 #include <cmath>
@@ -12,11 +14,11 @@
 void Engine::quit() { running = false; }
 
 void Engine::createWindow() {
-  const int width = 1536;
-  const int height = 864;
+  const int width = 1936;
+  const int height = 1264;
   sf::VideoMode video(width, height);
   const std::string title = "GRAPH TOOL";
-  window.create(video, title, sf::Style::Fullscreen);
+  window.create(video, title, sf::Style::Titlebar);
   std::cout << "[INFO]: Window Created" << std::endl;
 }
 
@@ -58,14 +60,18 @@ void Engine::input() {
         on_click = false;
         edge_creation_pending = false;
         break;
+      case sf::Keyboard::R:
+        // to delete only for debugging
+        Dijkstra(Graph::getMatrix().begin()->first);
+        break;
       case ::sf::Keyboard::D:
-        for (auto &[key, val] : graph.getMatrix()) {
+        for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(sf::Vector2f(sf::Mouse::getPosition(window).x,
                                        sf::Mouse::getPosition(window).y),
                           key.shape)) {
             std::cout << "[INFO]: Deleted Node with Id = " << key.ID
                       << std::endl;
-            graph.deleteNode(key);
+            Graph::deleteNode(key);
             break;
           }
         }
@@ -87,21 +93,21 @@ void Engine::input() {
           createNewNode();
           break;
         }
-        for (auto &[key, val] : graph.getMatrix()) {
+        for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
                   sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                   key.shape)) {
             lock_click = true;
             this->prev_mousepos = sf::Mouse::getPosition(window);
-            auto node = graph.getMatrix().extract(key);
+            auto node = Graph::getMatrix().extract(key);
             current_node = &(node.key());
-            graph.getMatrix().insert(std::move(node));
+            Graph::getMatrix().insert(std::move(node));
             break;
           }
         }
       } break;
       case sf::Mouse::Right: {
-        for (auto &[key, val] : graph.getMatrix()) {
+        for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
                   sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                   key.shape)) {
@@ -111,7 +117,7 @@ void Engine::input() {
               createNewEdge(key);
               edge_creation_pending = false;
             } else {
-              auto node = graph.getMatrix().extract(key);
+              auto node = Graph::getMatrix().extract(key);
               edge_creation_pending = true;
               pending_node = (&node.key());
               line_pending[0] = pending_node->shape.getPosition();
@@ -120,7 +126,7 @@ void Engine::input() {
               std::string str = key.label.getString();
               std::cout << "[INFO]: Started Edge from Node " << str
                         << std::endl;
-              graph.getMatrix().insert(std::move(node));
+              Graph::getMatrix().insert(std::move(node));
             }
             break;
           }
@@ -153,9 +159,9 @@ void Engine::movement() {
     const int y = node_position.y + (mouse_position.y - this->prev_mousepos.y);
     current_node->shape.setPosition(x, y);
     current_node->label.setPosition(x, y);
-    auto node = graph.getMatrix().extract(*current_node);
+    auto node = Graph::getMatrix().extract(*current_node);
     node.key().shape.setPosition(current_node->shape.getPosition());
-    graph.getMatrix().insert(std::move(node));
+    Graph::getMatrix().insert(std::move(node));
     this->prev_mousepos = mouse_position;
   }
   if (edge_creation_pending) {
@@ -176,13 +182,13 @@ void Engine::createNewNode() {
   this->prev_mousepos = sf::Mouse::getPosition(window);
   new_node.shape.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
   new_node.label.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
-  graph.addNode(new_node);
+  Graph::addNode(new_node);
   std::cout << "[INFO]: New Node Created" << std::endl;
 }
 
 void Engine::createNewEdge(const Node ending_node) {
   std::cout << "[INFO]: Ended Edge to Node " << ending_node.ID << std::endl;
-  graph.getMatrix().at(*pending_node).emplace(ending_node, 12);
+  Graph::getMatrix().at(*pending_node).emplace(ending_node, 12);
 }
 
 void Engine::createNodesCreationArea() {
@@ -210,14 +216,14 @@ void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents) {
   arrow.setRadius(radius_arrow);
   arrow.setOrigin(radius_arrow, radius_arrow);
   for (auto &[key, value] : adjacents) {
-    auto node = graph.getMatrix().extract(key);
+    auto node = Graph::getMatrix().extract(key);
     if (!node)
       continue;
-    graph.getMatrix().at(started).at(key) =
+    Graph::getMatrix().at(started).at(key) =
         Vec2::dist(keyPosition, node.key().shape.getPosition());
     // std::cout << "this is the cost of the edges from " << started.ID
     // << " to: " << key.ID
-    // << " is: " << graph.getMatrix().at(started).at(key) << std::endl;
+    // << " is: " << Graph::getMatrix().at(started).at(key) << std::endl;
     const int cost = value;
     line[0].position = keyPosition;
     line[1].position = node.key().shape.getPosition();
@@ -236,7 +242,7 @@ void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents) {
         keyPosition.x + (node.key().shape.getRadius() * cos(theta));
     line[0].position.y =
         keyPosition.y + (node.key().shape.getRadius() * sin(theta));
-    graph.getMatrix().insert(std::move(node));
+    Graph::getMatrix().insert(std::move(node));
     arrow.setRotation(-30 + (180 / M_PI) * theta);
 
     line[1].position = arrow.getPosition();
@@ -265,10 +271,10 @@ void Engine::draw() {
   window.draw(nodes_creation_area.shape);
   window.draw(nodes_creation_area.label);
   // draw all nodes
-  for (auto &[key, value] : graph.getMatrix())
+  for (auto &[key, value] : Graph::getMatrix())
     drawEdgesFrom(key, value);
 
-  for (auto &[key, val] : graph.getMatrix()) {
+  for (auto &[key, val] : Graph::getMatrix()) {
     window.draw(key.shape);
     window.draw(key.label);
   }
