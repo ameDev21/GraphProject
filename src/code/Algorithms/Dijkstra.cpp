@@ -1,5 +1,7 @@
 #include "Algorithms/Dijkstra.hpp"
 #include <limits>
+#include <ostream>
+#include <tuple>
 #include <utility>
 
 PredecessorsAndPathMap Dijkstra::m_predecessors_map;
@@ -26,7 +28,14 @@ Dijkstra::Dijkstra(Node source) {
   //   Dijkstra::m_priority_queue.pop();
   // }
   Dijkstra::run();
-  std::cout << "\n"
+  std::cout << "this is the shorter path to the node: "
+            << Dijkstra::m_predecessors_map.end()->first.ID << std::endl;
+  auto prendecessors =
+      Dijkstra::getShorterPath(m_predecessors_map.end()->first);
+  for (auto &e : prendecessors)
+    std::cout << " node-> " << e.first.ID << " to";
+  std::cout << " source "
+            << "\n"
             << "predecessor map: ";
   // running the algorithm
   for (auto &[key, value] : Dijkstra::m_predecessors_map)
@@ -46,8 +55,10 @@ void Dijkstra::relax(Node node) {
   for (auto &[key, value] : Graph::getMatrix().at(node)) {
     const unsigned new_path = Dijkstra::m_predecessors_map.at(node).second +
                               Graph::getMatrix().at(node).at(key);
-    if (new_path < Dijkstra::m_predecessors_map.at(key).second)
+    if (new_path < Dijkstra::m_predecessors_map.at(key).second) {
       Dijkstra::m_predecessors_map.at(key).second = new_path;
+      Dijkstra::m_predecessors_map.at(key).first = node;
+    }
   }
   // updating the priority_queue in case of path modification
   Dijkstra::updateHeap();
@@ -67,10 +78,19 @@ void Dijkstra::updateHeap() {
 
 void Dijkstra::run() {
   // all the debug prints has to be clean up before pushing on git
-  std::cout << "running the algo!" << std::endl;
+  std::cout << "running Dijkstra!" << std::endl;
   while (!Dijkstra::m_priority_queue.empty()) {
     std::cout << "relaxing node: " << Dijkstra::m_priority_queue.top().second.ID
               << std::endl;
     Dijkstra::relax(Dijkstra::m_priority_queue.top().second);
   }
+}
+
+std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
+  std::vector<std::pair<Node, unsigned>> predecessors_path;
+  predecessors_path.emplace_back(Dijkstra::m_predecessors_map.at(node));
+  while (Dijkstra::m_predecessors_map.at(predecessors_path.back().first).second)
+    predecessors_path.emplace_back(
+        Dijkstra::m_predecessors_map.at(predecessors_path.back().first));
+  return predecessors_path;
 }

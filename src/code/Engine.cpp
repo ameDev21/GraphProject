@@ -18,7 +18,7 @@ void Engine::createWindow() {
   const int height = 1264;
   sf::VideoMode video(width, height);
   const std::string title = "GRAPH TOOL";
-  window.create(video, title, sf::Style::Titlebar);
+  window.create(video, title, sf::Style::Fullscreen);
   std::cout << "[INFO]: Window Created" << std::endl;
 }
 
@@ -60,10 +60,12 @@ void Engine::input() {
         on_click = false;
         edge_creation_pending = false;
         break;
-      case sf::Keyboard::R:
-        // to delete only for debugging
+      case sf::Keyboard::R: {
+        // to delete this is only for debugging
         Dijkstra(Graph::getMatrix().begin()->first);
+        auto e = Dijkstra::getShorterPath(Graph::getMatrix().end()->first);
         break;
+      }
       case ::sf::Keyboard::D:
         for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(sf::Vector2f(sf::Mouse::getPosition(window).x,

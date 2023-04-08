@@ -36,4 +36,5 @@ private:
   // static void resetAll();
 public:
   explicit Dijkstra(Node);
+  static std::vector<std::pair<Node, unsigned>> getShorterPath(Node);
 };
