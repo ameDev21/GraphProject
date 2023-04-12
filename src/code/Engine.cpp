@@ -60,10 +60,12 @@ void Engine::input() {
         on_click = false;
         edge_creation_pending = false;
         break;
-      case sf::Keyboard::R: {
+      case sf::Keyboard::S: {
         // to delete this is only for debugging
+        path_on_click = true;
         Dijkstra(Graph::getMatrix().begin()->first);
-        auto e = Dijkstra::getShorterPath(Graph::getMatrix().end()->first);
+        drawShorterPath(
+            Dijkstra::getShorterPath(Graph::getMatrix().end()->first));
         break;
       }
       case ::sf::Keyboard::D:
@@ -94,6 +96,28 @@ void Engine::input() {
         if (on_click) {
           createNewNode();
           break;
+        }
+        if (path_on_click) {
+          for (auto it = Graph::getMatrix().begin();
+               it != Graph::getMatrix().end(); ++it)
+            if (canPickNode(
+                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
+                    it->first.shape)) {
+              Dijkstra(it->first);
+              path_on_click = false;
+              destination_on_click = true;
+              break;
+            }
+        }
+        if (destination_on_click) {
+          for (auto &[key, value] : Graph::getMatrix())
+            if (canPickNode(
+                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
+                    key.shape)) {
+              drawShorterPath((Dijkstra::getShorterPath(key)));
+              destination_on_click = false;
+              break;
+            }
         }
         for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
@@ -264,6 +288,10 @@ void Engine::draw() {
     text.setString("Node Creation Mode, Press 'E' for Leave ");
     text.setFillColor(sf::Color::White);
     window.draw(text);
+  } else if (path_on_click) {
+    text.setString("Selecting shorter path");
+    text.setFillColor(sf::Color::Green);
+    window.draw(text);
   } else {
     text.setString("Navigation Mode, Press 'Escape' for Quit ");
     text.setFillColor(sf::Color::Yellow);
@@ -280,6 +308,13 @@ void Engine::draw() {
     window.draw(key.shape);
     window.draw(key.label);
   }
+}
+
+void Engine::drawShorterPath(std::vector<std::pair<Node, unsigned>>) {
+  // TODO(me): implement here the shorter path coloring
+  // be careful cause the drawing this time is not in
+  // the draw function this could cause some problem
+  // in this case change the location of the calling
 }
 
 void Engine::render() {

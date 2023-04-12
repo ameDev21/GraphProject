@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 class Engine {
@@ -14,6 +15,8 @@ private:
   bool edge_creation_pending = false;
   bool lock_click = false;
   bool on_click = false;
+  bool path_on_click = false;
+  bool destination_on_click = false;
   sf::RenderWindow window;
   sf::Font font;
   sf::Text text;
@@ -39,6 +42,7 @@ private:
   void createNewEdge(const Node);
 
   void drawEdgesFrom(Node, std::map<Node, int>);
+  void drawShorterPath(std::vector<std::pair<Node, unsigned>>);
 
 public:
   void start();
