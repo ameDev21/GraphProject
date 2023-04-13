@@ -41,7 +41,7 @@ private:
   void createNewNode();
   void createNewEdge(const Node);
 
-  void drawEdgesFrom(Node, std::map<Node, int>);
+  void drawEdgesFrom(Node, std::map<Node, int>, const sf::Color);
   void drawShorterPath(std::vector<std::pair<Node, unsigned>>);
 
 public:

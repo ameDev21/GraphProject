@@ -64,8 +64,8 @@ void Engine::input() {
         // to delete this is only for debugging
         path_on_click = true;
         Dijkstra(Graph::getMatrix().begin()->first);
-        drawShorterPath(
-            Dijkstra::getShorterPath(Graph::getMatrix().end()->first));
+        // drawShorterPath(Dijkstra::getShorterPath(
+        //     std::prev(Graph::getMatrix().end())->first));
         break;
       }
       case ::sf::Keyboard::D:
@@ -97,18 +97,6 @@ void Engine::input() {
           createNewNode();
           break;
         }
-        if (path_on_click) {
-          for (auto it = Graph::getMatrix().begin();
-               it != Graph::getMatrix().end(); ++it)
-            if (canPickNode(
-                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
-                    it->first.shape)) {
-              Dijkstra(it->first);
-              path_on_click = false;
-              destination_on_click = true;
-              break;
-            }
-        }
         if (destination_on_click) {
           for (auto &[key, value] : Graph::getMatrix())
             if (canPickNode(
@@ -133,6 +121,18 @@ void Engine::input() {
         }
       } break;
       case sf::Mouse::Right: {
+        if (path_on_click) {
+          for (auto it = Graph::getMatrix().begin();
+               it != std::prev(Graph::getMatrix().end()); ++it)
+            if (canPickNode(
+                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
+                    it->first.shape)) {
+              Dijkstra(it->first);
+              path_on_click = false;
+              destination_on_click = true;
+              break;
+            }
+        }
         for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
                   sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
@@ -228,7 +228,8 @@ void Engine::createNodesCreationArea() {
   std::cout << "[INFO]: Nodes Creation Area Created" << std::endl;
 }
 
-void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents) {
+void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents,
+                           const sf::Color color) {
   const sf::Vector2f keyPosition = started.shape.getPosition();
   sf::Text label;
   label.setFont(font);
@@ -270,7 +271,8 @@ void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents) {
         keyPosition.y + (node.key().shape.getRadius() * sin(theta));
     Graph::getMatrix().insert(std::move(node));
     arrow.setRotation(-30 + (180 / M_PI) * theta);
-
+    line[0].color = color;
+    line[1].color = color;
     line[1].position = arrow.getPosition();
     window.draw(line, 2, sf::Lines);
     window.draw(arrow);
@@ -302,7 +304,7 @@ void Engine::draw() {
   window.draw(nodes_creation_area.label);
   // draw all nodes
   for (auto &[key, value] : Graph::getMatrix())
-    drawEdgesFrom(key, value);
+    drawEdgesFrom(key, value, sf::Color::White);
 
   for (auto &[key, val] : Graph::getMatrix()) {
     window.draw(key.shape);
@@ -310,14 +312,33 @@ void Engine::draw() {
   }
 }
 
-void Engine::drawShorterPath(std::vector<std::pair<Node, unsigned>>) {
+void Engine::drawShorterPath(
+    std::vector<std::pair<Node, unsigned>> predecessors_path) {
+  std::cout << "this is the predecessors_path: " << std::endl;
+  for (auto &e : predecessors_path)
+    std::cout << e.first.ID << std::endl;
   // TODO(me): implement here the shorter path coloring
-  // be careful cause the drawing this time is not in
-  // the draw function this could cause some problem
-  // in this case change the location of the calling
+  // be careful 'cause the drawing this time is not in
+  // the draw function this could cause some issues
+  // in that case change the location of the calling
+  std::map<Node, int> drawingElement;
+  for (auto it1 = predecessors_path.begin(), it2 = ++predecessors_path.begin();
+       it2 != predecessors_path.end(); ++it1, ++it2) {
+    drawingElement.clear();
+    drawingElement[(it1)->first] = static_cast<int>((it1)->second);
+    std::cout << "this is the edge that i want red: "
+              << drawingElement.begin()->first.ID << std::endl;
+    std::cout << it2->first.ID << std::endl;
+    drawEdgesFrom(it2->first, drawingElement, sf::Color::Red);
+  }
+  // TODO(me): find a way of making the edges
+  // blinking for some seconds, you have to make
+  // some kind of syncronization using time
+  std::cout << "here are making it!" << std::endl;
 }
 
 void Engine::render() {
+  // check for the reason isn drawing the red edges of the path
   window.clear(sf::Color::Black);
   draw();
   window.display();

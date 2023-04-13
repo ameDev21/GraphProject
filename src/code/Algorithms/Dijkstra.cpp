@@ -28,10 +28,13 @@ Dijkstra::Dijkstra(Node source) {
   //   Dijkstra::m_priority_queue.pop();
   // }
   Dijkstra::run();
+  for (auto &[key, value] : m_predecessors_map)
+    std::cout << key.ID << std::endl;
   std::cout << "this is the shorter path to the node: "
-            << Dijkstra::m_predecessors_map.end()->first.ID << std::endl;
+            << std::prev(Dijkstra::m_predecessors_map.end())->first.ID
+            << std::endl;
   auto prendecessors =
-      Dijkstra::getShorterPath(m_predecessors_map.end()->first);
+      Dijkstra::getShorterPath(std::prev(m_predecessors_map.end())->first);
   for (auto &e : prendecessors)
     std::cout << " node-> " << e.first.ID << " to";
   std::cout << " source "
@@ -88,9 +91,12 @@ void Dijkstra::run() {
 
 std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
   std::vector<std::pair<Node, unsigned>> predecessors_path;
-  predecessors_path.emplace_back(Dijkstra::m_predecessors_map.at(node));
+  // take a look at this weight
+  predecessors_path.push_back(std::make_pair(node, 100));
+  predecessors_path.push_back(Dijkstra::m_predecessors_map.at(node));
   while (Dijkstra::m_predecessors_map.at(predecessors_path.back().first).second)
-    predecessors_path.emplace_back(
+    predecessors_path.push_back(
         Dijkstra::m_predecessors_map.at(predecessors_path.back().first));
+  std::cout << "here we have finished! " << std::endl;
   return predecessors_path;
 }
