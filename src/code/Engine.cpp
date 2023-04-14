@@ -62,7 +62,7 @@ void Engine::input() {
         break;
       case sf::Keyboard::S: {
         // to delete this is only for debugging
-        path_on_click = true;
+        path_on_click = !path_on_click;
         Dijkstra(Graph::getMatrix().begin()->first);
         // drawShorterPath(Dijkstra::getShorterPath(
         //     std::prev(Graph::getMatrix().end())->first));
@@ -258,7 +258,8 @@ void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents,
                       (keyPosition.y + node.key().shape.getPosition().y) / 2);
     const float theta = std::atan2(line[1].position.y - line[0].position.y,
                                    line[1].position.x - line[0].position.x);
-    label.setString(std::to_string(cost));
+    if (cost)
+      label.setString(std::to_string(cost));
     arrow.setPosition(
         line[1].position.x -
             (node.key().shape.getRadius() + radius_arrow) * cos(theta),
@@ -276,7 +277,8 @@ void Engine::drawEdgesFrom(Node started, std::map<Node, int> adjacents,
     line[1].position = arrow.getPosition();
     window.draw(line, 2, sf::Lines);
     window.draw(arrow);
-    window.draw(label);
+    if (!label.getString().isEmpty())
+      window.draw(label);
   }
 }
 
@@ -305,6 +307,10 @@ void Engine::draw() {
   // draw all nodes
   for (auto &[key, value] : Graph::getMatrix())
     drawEdgesFrom(key, value, sf::Color::White);
+  // this should be changed to the right node
+  if (path_on_click)
+    drawShorterPath(
+        Dijkstra::getShorterPath(std::prev(Graph::getMatrix().end())->first));
 
   for (auto &[key, val] : Graph::getMatrix()) {
     window.draw(key.shape);
@@ -314,6 +320,9 @@ void Engine::draw() {
 
 void Engine::drawShorterPath(
     std::vector<std::pair<Node, unsigned>> predecessors_path) {
+  // handling the inf distance case
+  if (!predecessors_path.size())
+    return;
   std::cout << "this is the predecessors_path: " << std::endl;
   for (auto &e : predecessors_path)
     std::cout << e.first.ID << std::endl;
@@ -325,9 +334,10 @@ void Engine::drawShorterPath(
   for (auto it1 = predecessors_path.begin(), it2 = ++predecessors_path.begin();
        it2 != predecessors_path.end(); ++it1, ++it2) {
     drawingElement.clear();
-    drawingElement[(it1)->first] = static_cast<int>((it1)->second);
+    drawingElement[(it1)->first] = 0;
     std::cout << "this is the edge that i want red: "
               << drawingElement.begin()->first.ID << std::endl;
+    it2->second = 0;
     std::cout << it2->first.ID << std::endl;
     drawEdgesFrom(it2->first, drawingElement, sf::Color::Red);
   }
@@ -338,7 +348,6 @@ void Engine::drawShorterPath(
 }
 
 void Engine::render() {
-  // check for the reason isn drawing the red edges of the path
   window.clear(sf::Color::Black);
   draw();
   window.display();

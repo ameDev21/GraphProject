@@ -14,7 +14,7 @@ Dijkstra::Dijkstra(Node source) {
                           std::numeric_limits<unsigned>::max();
     Dijkstra::m_priority_queue.push(std::make_pair(cost, e.first));
     // setting default predecessor to source
-    m_predecessors_map[e.first] = std::make_pair(source, cost);
+    m_predecessors_map[e.first] = std::make_pair(NULL, cost);
     m_relaxed_nodes[e.first] = false;
   }
   std::cout << "\n";
@@ -29,7 +29,8 @@ Dijkstra::Dijkstra(Node source) {
   // }
   Dijkstra::run();
   for (auto &[key, value] : m_predecessors_map)
-    std::cout << key.ID << std::endl;
+    std::cout << key.ID << " -> " << value.first.ID << " <-> " << value.second
+              << std::endl;
   std::cout << "this is the shorter path to the node: "
             << std::prev(Dijkstra::m_predecessors_map.end())->first.ID
             << std::endl;
@@ -90,9 +91,14 @@ void Dijkstra::run() {
 }
 
 std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
+  std::cout << "the node that we want the shorter path has prendecessor: "
+            << m_predecessors_map.at(node).first.ID << std::endl;
+  // inf distance case
+  if (m_predecessors_map.at(node).first.ID < 0)
+    return {};
   std::vector<std::pair<Node, unsigned>> predecessors_path;
   // take a look at this weight
-  predecessors_path.push_back(std::make_pair(node, 100));
+  predecessors_path.push_back(std::make_pair(node, 0));
   predecessors_path.push_back(Dijkstra::m_predecessors_map.at(node));
   while (Dijkstra::m_predecessors_map.at(predecessors_path.back().first).second)
     predecessors_path.push_back(
