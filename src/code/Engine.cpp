@@ -63,7 +63,8 @@ void Engine::input() {
       case sf::Keyboard::S: {
         // to delete this is only for debugging
         path_on_click = !path_on_click;
-        Dijkstra(Graph::getMatrix().begin()->first);
+        destination_on_click = false;
+        // Dijkstra(Graph::getMatrix().begin()->first);
         // drawShorterPath(Dijkstra::getShorterPath(
         //     std::prev(Graph::getMatrix().end())->first));
         break;
@@ -88,6 +89,27 @@ void Engine::input() {
     case sf::Event::MouseButtonPressed: {
       switch (event.mouseButton.button) {
       case sf::Mouse::Left: {
+        if (path_on_click) {
+          for (auto const &e : Graph::getMatrix())
+            if (canPickNode(
+                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
+                    e.first.shape)) {
+              Dijkstra(e.first);
+              destination_on_click = true;
+              break;
+            }
+        }
+
+        if (destination_on_click) {
+          for (auto &[key, value] : Graph::getMatrix())
+            if (canPickNode(
+                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
+                    key.shape)) {
+              Dijkstra::setDestination(key);
+              break;
+            }
+        }
+
         if (canPickNode(sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                         nodes_creation_area.shape)) {
           on_click = true;
@@ -96,16 +118,6 @@ void Engine::input() {
         if (on_click) {
           createNewNode();
           break;
-        }
-        if (destination_on_click) {
-          for (auto &[key, value] : Graph::getMatrix())
-            if (canPickNode(
-                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
-                    key.shape)) {
-              drawShorterPath((Dijkstra::getShorterPath(key)));
-              destination_on_click = false;
-              break;
-            }
         }
         for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
@@ -121,18 +133,6 @@ void Engine::input() {
         }
       } break;
       case sf::Mouse::Right: {
-        if (path_on_click) {
-          for (auto it = Graph::getMatrix().begin();
-               it != std::prev(Graph::getMatrix().end()); ++it)
-            if (canPickNode(
-                    sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
-                    it->first.shape)) {
-              Dijkstra(it->first);
-              path_on_click = false;
-              destination_on_click = true;
-              break;
-            }
-        }
         for (auto &[key, val] : Graph::getMatrix()) {
           if (canPickNode(
                   sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
@@ -307,10 +307,9 @@ void Engine::draw() {
   // draw all nodes
   for (auto &[key, value] : Graph::getMatrix())
     drawEdgesFrom(key, value, sf::Color::White);
-  // this should be changed to the right node
-  if (path_on_click)
-    drawShorterPath(
-        Dijkstra::getShorterPath(std::prev(Graph::getMatrix().end())->first));
+  // this should change to the right node
+  if (path_on_click && destination_on_click)
+    drawShorterPath(Dijkstra::getShorterPath(Dijkstra::getDestination()));
 
   for (auto &[key, val] : Graph::getMatrix()) {
     window.draw(key.shape);
@@ -341,9 +340,9 @@ void Engine::drawShorterPath(
     std::cout << it2->first.ID << std::endl;
     drawEdgesFrom(it2->first, drawingElement, sf::Color::Red);
   }
-  // TODO(me): find a way of making the edges
-  // blinking for some seconds, you have to make
-  // some kind of syncronization using time
+  // TODO(me): go on with the implementation of the
+  // choosed source and destination
+  // debug the mouse click issue
   std::cout << "here are making it!" << std::endl;
 }
 

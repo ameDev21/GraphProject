@@ -7,14 +7,16 @@
 PredecessorsAndPathMap Dijkstra::m_predecessors_map;
 PriorityQueue Dijkstra::m_priority_queue;
 RelaxedNodes Dijkstra::m_relaxed_nodes;
+Node Dijkstra::m_destination_node;
 
-Dijkstra::Dijkstra(Node source) {
+Dijkstra::Dijkstra(const Node source) {
   for (auto &e : Graph::getMatrix()) {
     const unsigned cost = ((e.first.ID == source.ID) ? 0 : 1) *
                           std::numeric_limits<unsigned>::max();
     Dijkstra::m_priority_queue.push(std::make_pair(cost, e.first));
-    // setting default predecessor to source
+    // setting default predecessor to -1
     m_predecessors_map[e.first] = std::make_pair(NULL, cost);
+    m_predecessors_map.at(e.first).first.ID = -1;
     m_relaxed_nodes[e.first] = false;
   }
   std::cout << "\n";
@@ -94,8 +96,9 @@ std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
   std::cout << "the node that we want the shorter path has prendecessor: "
             << m_predecessors_map.at(node).first.ID << std::endl;
   // inf distance case
-  if (m_predecessors_map.at(node).first.ID < 0)
+  if (m_predecessors_map.at(node).first.ID == -1)
     return {};
+
   std::vector<std::pair<Node, unsigned>> predecessors_path;
   // take a look at this weight
   predecessors_path.push_back(std::make_pair(node, 0));
@@ -106,3 +109,9 @@ std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
   std::cout << "here we have finished! " << std::endl;
   return predecessors_path;
 }
+
+void Dijkstra::setDestination(const Node destination) {
+  Dijkstra::m_destination_node = destination;
+}
+
+Node Dijkstra::getDestination() { return Dijkstra::m_destination_node; }

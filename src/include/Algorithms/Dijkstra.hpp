@@ -29,12 +29,15 @@ private:
   static PriorityQueue m_priority_queue;
   static PredecessorsAndPathMap m_predecessors_map;
   static RelaxedNodes m_relaxed_nodes;
+  static Node m_destination_node;
 
   static void relax(Node);
   static void updateHeap();
   static void run();
   // static void resetAll();
 public:
-  explicit Dijkstra(Node);
+  explicit Dijkstra(const Node);
+  static void setDestination(const Node);
+  static Node getDestination();
   static std::vector<std::pair<Node, unsigned>> getShorterPath(Node);
 };
