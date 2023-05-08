@@ -15,6 +15,7 @@ file(
   GLOB CPP_SOURCE
   "${PROJECT_SOURCE_DIR}/src/*.cpp" # i.e. `src/main.cpp`, but not `src/d/f.cpp`
   "${PROJECT_SOURCE_DIR}/src/code/*.cpp" # i.e. `src/code/f.cpp`, but not `src/d/f/k.cpp`
+    "${PROJECT_SOURCE_DIR}/src/code/Algorithms/*.cpp" # i.e. `src/code/f.cpp`, but not `src/d/f/k.cpp`
 )
 
 # where to find header files
