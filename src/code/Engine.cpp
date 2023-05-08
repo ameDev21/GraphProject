@@ -59,11 +59,13 @@ void Engine::input() {
       case sf::Keyboard::E:
         on_click = false;
         edge_creation_pending = false;
+        drawing_path = false;
         break;
       case sf::Keyboard::S: {
         // to delete this is only for debugging
         path_on_click = !path_on_click;
         destination_on_click = false;
+        drawing_path = false;
         // Dijkstra(Graph::getMatrix().begin()->first);
         // drawShorterPath(Dijkstra::getShorterPath(
         //     std::prev(Graph::getMatrix().end())->first));
@@ -89,11 +91,12 @@ void Engine::input() {
     case sf::Event::MouseButtonPressed: {
       switch (event.mouseButton.button) {
       case sf::Mouse::Left: {
-        if (path_on_click) {
-          for (auto const &e : Graph::getMatrix())
+        if (path_on_click && !destination_on_click) {
+          for (auto &e : Graph::getMatrix())
             if (canPickNode(
                     sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                     e.first.shape)) {
+              std::cout << "the source is: " << e.first.ID << std::endl;
               Dijkstra(e.first);
               destination_on_click = true;
               break;
@@ -106,6 +109,8 @@ void Engine::input() {
                     sf::Vector2f(event.mouseButton.x, event.mouseButton.y),
                     key.shape)) {
               Dijkstra::setDestination(key);
+              std::cout << "the destination is: " << key.ID << std::endl;
+              drawing_path = true;
               break;
             }
         }
@@ -308,8 +313,12 @@ void Engine::draw() {
   for (auto &[key, value] : Graph::getMatrix())
     drawEdgesFrom(key, value, sf::Color::White);
   // this should change to the right node
-  if (path_on_click && destination_on_click)
+  if (drawing_path) {
+    std::cout << "the path has as destination the node: "
+              << Dijkstra::getDestination().ID << std::endl;
+    std::cout << "here is called " << std::endl;
     drawShorterPath(Dijkstra::getShorterPath(Dijkstra::getDestination()));
+  }
 
   for (auto &[key, val] : Graph::getMatrix()) {
     window.draw(key.shape);

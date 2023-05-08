@@ -17,6 +17,7 @@ private:
   bool on_click = false;
   bool path_on_click = false;
   bool destination_on_click = false;
+  bool drawing_path = false;
   sf::RenderWindow window;
   sf::Font font;
   sf::Text text;

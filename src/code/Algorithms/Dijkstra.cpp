@@ -78,7 +78,7 @@ void Dijkstra::updateHeap() {
   for (auto &[key, value] : Dijkstra::m_predecessors_map)
     if (!(m_relaxed_nodes.at(key))) {
       Dijkstra::m_priority_queue.push(std::make_pair(value.second, key));
-      std::cout << "im (re)pushing node: " << key.ID << std::endl;
+      std::cout << "i'm (re)pushing node: " << key.ID << std::endl;
     }
 }
 
@@ -93,8 +93,12 @@ void Dijkstra::run() {
 }
 
 std::vector<std::pair<Node, unsigned>> Dijkstra::getShorterPath(Node node) {
+  std::cout << "the node from where we want the predecessors by is: " << node.ID
+            << std::endl;
   std::cout << "the node that we want the shorter path has prendecessor: "
             << m_predecessors_map.at(node).first.ID << std::endl;
+  std::cout << "this ought to be 0 " << m_predecessors_map.at(node).first.ID
+            << std::endl;
   // inf distance case
   if (m_predecessors_map.at(node).first.ID == -1)
     return {};
