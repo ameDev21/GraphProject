@@ -1,31 +1,19 @@
-#include "../include/Node.h"
+#include "../include/Node.hpp"
 
-Node::Node()
-{
-  // shape.setRadius(RADIUS);
-  // shape.setOrigin(RADIUS, RADIUS);
-  init(RADIUS);
-}
+#include <iostream>
 
-Node::Node(const int radius)
-{
-  init(radius);
-}
+Node::Node() { init(RADIUS); }
 
-void Node::setId(int id) { m_id = id; }
+Node::Node(const int radius) { init(radius); }
 
-void Node::init(const int radius)
-{
-  font.loadFromFile("fonts/iosevka.ttf");
+void Node::setId(int id) { ID = id; }
+
+void Node::init(const int radius) {
   shape.setRadius(radius);
   shape.setPosition(radius + 20, radius + 20);
   shape.setOrigin(radius, radius);
-  label.setPosition(shape.getPosition());
-  label.setFont(font);
-  std::cout << label.getPosition().x << " " << label.getPosition().y << std::endl;
-  label.setCharacterSize(20);
-  label.setFillColor(sf::Color::Green);
-  label.setString("Hello, World");
-}
 
-const int Node::getId() { return m_id; }
+  label.setCharacterSize(20);
+  label.setPosition(shape.getPosition().x - label.getCharacterSize(),
+                    shape.getPosition().y - label.getCharacterSize());
+}
